@@ -1,0 +1,18 @@
+#!/bin/bash
+
+NET="$1"
+usage="usage: $0 (testnet|mainnet)"
+
+
+if [ "$NET" == "testnet" ]; then
+    
+    /opt/boltz-backend/bin/boltzd --datadir=~/testnet/boltz --configpath=~/testnet/boltz/boltz.conf >> ~/testnet/logs/boltzd.log &
+
+elif [ "$NET" == "mainnet" ]; then
+
+    /opt/boltz-backend/bin/boltzd --datadir=~/mainnet/boltz --configpath=~/mainnet/boltz/boltz.conf >> ~/mainnet/logs/boltzd.log &
+
+else
+    echo $usage
+    exit 1
+fi 

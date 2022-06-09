@@ -1,0 +1,33 @@
+#!/bin/bash
+cd "$(dirname "$0")"
+
+dir="/tmp/audit"
+rm -rf $dir
+mkdir $dir
+
+
+# eclair:
+./eclair/init_db
+cd $dir
+cp -r /tmp/eclair_data .
+mv eclair_data eclair
+
+
+# lnd:
+mkdir $dir/lnd
+
+
+MACAROON_HEADER="Grpc-Metadata-macaroon: $(xxd -ps -u -c 1000 /home/boltz/mainnet/lnd/data/chain/bitcoin/mainnet/admin.macaroon)" 
+# 
+# curl -X GET --cacert /home/boltz/mainnet/lnd/tls.cert --header "$MACAROON_HEADER" "https://localhost:8080/v1/switch?start_time=0&num_max_events=1000000" > $dir/lnd/forwardings.json
+curl -d '{"num_max_events": 1000000, "start_time": 0}' -X POST --cacert /home/boltz/mainnet/lnd/tls.cert --header "$MACAROON_HEADER" https://localhost:8080/v1/switch > $dir/lnd/forwardings.json
+curl -X GET --cacert /home/boltz/mainnet/lnd/tls.cert --header "$MACAROON_HEADER" https://localhost:8080/v1/payments?num_max_payments=1000000 > $dir/lnd/payments.json
+curl -X GET --cacert /home/boltz/mainnet/lnd/tls.cert --header "$MACAROON_HEADER" https://localhost:8080/v1/invoices?num_max_invoices=1000000 > $dir/lnd/invoices.json
+curl -X GET --cacert /home/boltz/mainnet/lnd/tls.cert --header "$MACAROON_HEADER" https://localhost:8080/v2/wallet/sweeps > $dir/lnd/sweeps.json
+curl -X GET --cacert /home/boltz/mainnet/lnd/tls.cert --header "$MACAROON_HEADER" https://localhost:8080/v1/transactions > $dir/lnd/transactions.json
+curl -X GET --cacert /home/boltz/mainnet/lnd/tls.cert --header "$MACAROON_HEADER" https://localhost:8080/v1/channels > $dir/lnd/listchannels.json
+curl -X GET --cacert /home/boltz/mainnet/lnd/tls.cert --header "$MACAROON_HEADER" https://localhost:8080/v1/channels/closed > $dir/lnd/closedchannels.json
+
+
+cd $dir
+tar czf audit.tar.gz lnd eclair

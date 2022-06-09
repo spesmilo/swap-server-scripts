@@ -1,0 +1,14 @@
+#!/bin/bash
+source ~/.bashrc
+echo ">>> bitcoind:"
+ps x | grep -v "grep" | grep bitcoind
+echo ">>> lnd:"
+ps x | grep -v "grep" | grep lnddir
+echo ">>> channel backup:"
+ps x | grep -v "grep" | grep inotifywait
+echo ">>> boltzd:"
+ps x | grep -v "grep" | grep boltzd
+echo ">>> eclair:"
+ps x | grep -v "grep" | grep java
+echo ">>> rtl:"
+ps x | grep -v "grep" | grep "node rtl"

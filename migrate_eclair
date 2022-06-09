@@ -1,0 +1,64 @@
+#!/bin/bash
+
+
+NET="$1"
+COMMAND="$2"
+usage="usage: $0 (testnet|mainnet) (migrate|cleanup|deploy)"
+
+if [ "$NET" == "testnet" ]; then
+    
+    WALLETPATH=".bitcoin/testnet3/wallets/eclair/"
+    BITCOINCLI=$TESTNET_BITCOINCLI
+
+elif [ "$NET" == "mainnet" ]; then
+
+    WALLETPATH=".bitcoin/eclair/"
+    BITCOINCLI=$MAINNET_BITCOINCLI
+else
+
+    echo $usage
+    exit 0
+    
+fi
+
+cd
+
+eclair_data_tgz="eclair_data.$NET.tgz"
+eclair_wallet_tgz="eclair_wallet.$NET.tgz"
+
+if [ "$COMMAND" == "migrate" ]; then
+    
+    # test access
+    ssh migration_server echo "hello"
+
+    echo "stopping eclair"
+    ./scripts/stop_eclair $NET
+
+    echo "unloading eclair wallet"
+    $BITCOINCLI unloadwallet eclair
+   
+    tar -czf $eclair_data_tgz --exclude="$NET/eclair/*.log" $NET/eclair
+    tar -czf $eclair_wallet_tgz  $WALLETPATH
+
+    scp $eclair_data_tgz boltz@migration_server:
+    scp $eclair_wallet_tgz boltz@migration_server:
+
+elif [ "$COMMAND" == "cleanup" ]; then
+
+    echo "post-migration cleanup:"
+    echo "rm -rf $NET/eclair"
+    echo "rm -rf $WALLETPATH"
+
+elif [ "$COMMAND" == "deploy" ]; then
+
+    tar -xvzf $eclair_data_tgz
+    tar -xvzf $eclair_wallet_tgz
+    $BITCOINCLI loadwallet eclair
+    ./scripts/start_eclair $NET
+
+else
+
+    echo $usage
+    exit 1
+
+fi

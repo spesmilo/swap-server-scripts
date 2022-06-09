@@ -1,0 +1,13 @@
+#!/bin/bash
+cd "$(dirname "$0")"
+eclair_onchain=$($MAINNET_ECLAIR onchainbalance | jq  '(.confirmed | tonumber | . / 100000) + (.unconfirmed | tonumber | . / 100000)')
+eclair_lightning=$($MAINNET_ECLAIR channels | ./eclair/sum_balances | jq '.local |tonumber')
+lnd_onchain=$($MAINNET_LNCLI walletbalance | jq '.total_balance | tonumber | . / 100000')
+lnd_lightning=$($MAINNET_LNCLI channelbalance | jq '.balance | tonumber | . / 100000')
+echo "{ 
+ \"eclair_onchain\": $eclair_onchain,
+ \"eclair_lightning\": $eclair_lightning,
+ \"lnd_onchain\": $lnd_onchain,
+ \"lnd_lightning\": $lnd_lightning
+}" | jq 
+

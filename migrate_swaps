@@ -1,0 +1,64 @@
+#!/bin/bash
+
+NET="$1"
+COMMAND="$2"
+usage="usage: $0 (testnet|mainnet) (migrate|cleanup|deploy)"
+
+if [ "$NET" == "testnet" ]; then
+    
+    LNCLI=$TESTNET_LNCLI
+    BOLTZCLI=$TESTNET_BOLTZCLI
+
+elif [ "$NET" == "mainnet" ]; then
+
+    LNCLI=$MAINNET_LNCLI
+    BOLTZCLI=$MAINNET_BOLTZCLI
+
+else
+
+    echo $usage
+    exit 0
+    
+fi
+
+cd
+
+lnd_data_tgz="lnd_data.$NET.tgz"
+boltz_data_tgz="boltz_data.$NET.tgz"
+
+
+if [ "$COMMAND" == "migrate" ]; then
+    
+    # test access
+    ssh migration_server echo "hello"
+
+    echo "stopping lnd"
+    ./scripts/stop_lnd $NET
+    ./scripts/stop_boltzd $NET
+
+    tar -czf $lnd_data_tgz --exclude="$NET/lnd/logs" $NET/lnd
+    tar -czf $boltz_data_tgz $NET/boltz
+
+    scp $lnd_data_tgz boltz@migration_server:
+    scp $boltz_data_tgz boltz@migration_server:
+
+elif [ "$COMMAND" == "cleanup" ]; then
+
+    echo "post-migration cleanup:"
+    echo "rm -rf $NET/lnd"
+    echo "rm -rf $NET/boltz"
+
+elif [ "$COMMAND" == "deploy" ]; then
+
+    tar -xvzf $lnd_data_tgz
+    tar -xvzf $boltz_data_tgz
+
+    echo "manually start lnd and boltzd"
+    #./scripts/start_lnd $NET
+    #./scripts/start_boltzd $NET
+else
+
+    echo $usage
+    exit 1
+
+fi

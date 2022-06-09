@@ -1,0 +1,1 @@
+tail -1000 ~/mainnet/boltz/boltz.log |grep succeeded

@@ -1,0 +1,24 @@
+#!/bin/bash
+
+NET="$1"
+usage="usage: $0 (testnet|mainnet)"
+
+if [[ -n "$1" && "$1" == "testnet"  ]] ; then
+
+    echo "Please check that cookie password in lnd.conf matches the following:"
+    cat /home/boltz/.bitcoin/testnet3/.cookie
+    echo ""
+    /opt/lnd/lnd --lnddir ~/testnet/lnd >> ~/testnet/logs/lnd.log &
+
+elif [[ -n "$1" && "$1" == "mainnet" ]] ; then
+    
+    /opt/lnd/lnd --lnddir ~/mainnet/lnd >> ~/mainnet/logs/lnd.log &
+
+else
+    
+    echo $usage
+    exit 1
+
+fi
+
+

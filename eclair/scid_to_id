@@ -1,2 +1,0 @@
-#!/bin/bash
-cat /tmp/eclair_data/channels.json | jq -r --arg scid $1 '.[] | select( .data.shortChannelId == $scid ) | .channelId'

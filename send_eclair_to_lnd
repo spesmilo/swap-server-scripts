@@ -1,0 +1,9 @@
+#!/bin/bash
+echo "Send amount: $1mBTC"
+echo -n "Enter wallet password": 
+read -s password
+$MAINNET_BITCOINCLI walletpassphrase $password 1 || exit 1
+echo ""
+amount_sat=$1"00000"
+addr=$($MAINNET_LNCLI newaddress p2wkh|jq -r .address)
+$MAINNET_ECLAIR sendonchain --address=$addr --amountSatoshis=$amount_sat --confirmationTarget=6

@@ -1,0 +1,9 @@
+#!/bin/bash
+cd $(dirname $0)
+eclair_local=$(./view_eclair_lnd | jq '.local | tonumber | floor')
+if (( "$eclair_local < 200" )); then
+    echo "rebalance"
+    ./send_lnd_to_eclair 50
+else
+    echo "nothing to do"
+fi

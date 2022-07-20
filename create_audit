@@ -7,7 +7,7 @@ mkdir $dir
 
 
 # eclair:
-./eclair/init_db
+~/eclair-tools/init_db
 cd $dir
 cp -r /tmp/eclair_data .
 mv eclair_data eclair

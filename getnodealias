@@ -1,0 +1,2 @@
+#!/bin/bash
+$MAINNET_LNCLI getnodeinfo $1 | jq -r .node.alias

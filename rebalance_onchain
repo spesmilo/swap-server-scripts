@@ -1,0 +1,17 @@
+#!/bin/bash
+cd $(dirname $0)
+eclair_onchain=$($MAINNET_ECLAIR onchainbalance | jq  '.confirmed | tonumber | floor ')
+lnd_onchain=$($MAINNET_LNCLI walletbalance | jq '.total_balance | tonumber | . / 100000 | floor ')
+
+if (( "$lnd_onchain < 200" )); then
+    if (( "$eclair_onchain > 100" )); then
+	echo "rebalance_onchain: 100 mBTC"
+	amount_sat=100"00000"
+	addr=$($MAINNET_LNCLI newaddress p2wkh|jq -r .address)
+	$MAINNET_ECLAIR sendonchain --address=$addr --amountSatoshis=$amount_sat --confirmationTarget=6
+    else
+	echo "rebalance_onchain: not enough funds"
+    fi
+else
+    echo "rebalance_onchain: nothing to do"
+fi

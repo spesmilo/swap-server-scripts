@@ -2,8 +2,8 @@
 cd $(dirname $0)
 eclair_local=$(./view_eclair_lnd | jq '.local | tonumber | floor')
 if (( "$eclair_local < 200" )); then
-    echo "rebalance"
+    echo "rebalance_offchain: 50 mBTC "
     ./send_lnd_to_eclair 50
 else
-    echo "nothing to do"
+    echo "rebalance_offchain: nothing to do"
 fi

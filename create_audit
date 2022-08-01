@@ -5,7 +5,6 @@ dir="/tmp/audit"
 rm -rf $dir
 mkdir $dir
 
-
 # eclair:
 ~/eclair-tools/init_db
 cd $dir

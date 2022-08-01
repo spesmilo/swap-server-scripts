@@ -1,0 +1,18 @@
+#!/bin/bash
+cd "$(dirname "$0")"
+
+# initiator fees arer included in order to make the result invariant
+# outgoing htlcs are assumed to be a swap
+
+listchannels=$($MAINNET_LNCLI listchannels)
+local_balance=$(echo $listchannels | jq '.channels|.[]|.local_balance|tonumber'| jq -s add)
+outgoing_htlcs=$(echo $listchannels | jq '.channels|.[]|.pending_htlcs| .[]| select( .incoming==false) | .amount| tonumber'| jq -s 'add | .+0')
+initiator_fees=$(echo $listchannels | jq '.channels|.[]| select(.initiator==true)| .commit_fee| tonumber'| jq -s add)
+
+total=$(echo "[$local_balance, $outgoing_htlcs, $initiator_fees]"| jq add)
+echo "{
+ \"local_balance\": $local_balance,
+ \"outgoing_htlcs\": $outgoing_htlcs,
+ \"initiator_fees\": $initiator_fees,
+ \"total\":  $total
+}"| jq

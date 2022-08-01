@@ -1,2 +1,2 @@
 #!/bin/bash
-~/eclair-tools/listchannels --public | jq --arg nn $ELECTRUM_SWAPS_NODE '.[] | select( .nodeId==$nn)' | jq -s | ~/eclair-tools/sum_balances 
+~/eclair-tools/listchannels --public | jq --arg nn $ELECTRUM_SWAPS_NODE 'map(select( .nodeId==$nn))' | ~/eclair-tools/sum_balances

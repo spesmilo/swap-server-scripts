@@ -1,10 +1,9 @@
 #!/bin/bash
 cd "$(dirname "$0")"
 
-
-# fixme: when eclair is closing a channel, the entry is still in the list of channels after tx is broadcast, until it gets 4 confirmations
-eclair_onchain=$($MAINNET_ECLAIR onchainbalance | jq  '( (.confirmed | tonumber ) + (.unconfirmed | tonumber ) | . / 100000)')
-eclair_lightning=$($MAINNET_ECLAIR channels | ~/eclair-tools/sum_balances | jq '.local |tonumber')
+eclair_balance=$(~/eclair-tools/getbalance)
+eclair_onchain=$(echo $eclair_balance | jq '.onchain')
+eclair_lightning=$(echo $eclair_balance | jq '.lightning')
 
 lnd_onchain=$($MAINNET_LNCLI walletbalance | jq '.total_balance | tonumber | . / 100000')
 lnd_lightning=$(./lnd_channels_balance | jq '.total | ./ 100000')

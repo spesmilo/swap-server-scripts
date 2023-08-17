@@ -3,4 +3,4 @@ echo "amount: $1 mBTC"
 amount_msat=$1"00000000"
 invoice=$($MAINNET_ECLAIR createinvoice --description="thomasv: get inbound liquidity for lnd" --amountMsat=$amount_msat|jq -r .serialized)
 echo $invoice
-$MAINNET_LNCLI payinvoice --fee_limit 0 -f $invoice
+/opt/electrum/run_electrum lnpay $invoice

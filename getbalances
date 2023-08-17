@@ -3,9 +3,16 @@ cd "$(dirname "$0")"
 
 eclair_balance=$(~/eclair-tools/getbalance)
 eclair_onchain=$(echo $eclair_balance | jq '.onchain')
-eclair_lightning=$(echo $eclair_balance | jq '.lightning')
+eclair_lightning=$(echo $eclair_balance | jq '[.lightning, .to_sweep, .pending ]| add')
+
 
 lnd_onchain=$($MAINNET_LNCLI walletbalance | jq '.total_balance | tonumber | . / 100000')
+
+# we need to add the coins sent to swap funding addresses to our onchain balance
+
+# confirmed balance:
+#lnd_onchain=$($MAINNET_LNCLI listchaintxns | jq '.transactions|map( select(.num_confirmations!=0)|.amount|tonumber) | add | ./100000' )
+
 lnd_lightning=$(./lnd_channels_balance | jq '.total | ./ 100000')
 
 

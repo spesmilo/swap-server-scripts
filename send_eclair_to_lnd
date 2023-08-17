@@ -1,5 +1,24 @@
 #!/bin/bash
 echo "Send amount: $1mBTC"
 amount_sat=$1"00000"
-addr=$($MAINNET_LNCLI newaddress p2wkh|jq -r .address)
-$MAINNET_ECLAIR sendonchain --address=$addr --amountSatoshis=$amount_sat --confirmationTarget=6
+if [  "$2" == "onchain" ]; then
+    echo "onchain"
+    addr=$($MAINNET_LNCLI newaddress p2wkh|jq -r .address)
+    $MAINNET_ECLAIR sendonchain --address=$addr --amountSatoshis=$amount_sat --confirmationTarget=6
+else
+    echo "offchain"
+    request=$($MAINNET_LNCLI addinvoice --amt $amount_sat --private | jq .payment_request)
+    echo $request
+    PARENTID=$($MAINNET_ECLAIR payinvoice --invoice=$request)
+    while true
+        do
+	sleep 1
+	INFO=$($MAINNET_ECLAIR getsentinfo --id=$PARENTID)
+	status=$(echo $INFO | jq -r '.[0]| .status.type')
+	if [ "$status" != "pending" ]; then
+	    break
+	fi
+    done
+    echo $INFO | jq
+    exit 0
+fi

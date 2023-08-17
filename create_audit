@@ -19,14 +19,23 @@ mkdir $dir/lnd
 MACAROON_HEADER="Grpc-Metadata-macaroon: $(xxd -ps -u -c 1000 /home/boltz/mainnet/lnd/data/chain/bitcoin/mainnet/admin.macaroon)" 
 # 
 # curl -X GET --cacert /home/boltz/mainnet/lnd/tls.cert --header "$MACAROON_HEADER" "https://localhost:8080/v1/switch?start_time=0&num_max_events=1000000" > $dir/lnd/forwardings.json
-curl -d '{"num_max_events": 1000000, "start_time": 0}' -X POST --cacert /home/boltz/mainnet/lnd/tls.cert --header "$MACAROON_HEADER" https://localhost:8080/v1/switch > $dir/lnd/forwardings.json
-curl -X GET --cacert /home/boltz/mainnet/lnd/tls.cert --header "$MACAROON_HEADER" https://localhost:8080/v1/payments?num_max_payments=1000000 > $dir/lnd/payments.json
-#curl -X GET --cacert /home/boltz/mainnet/lnd/tls.cert --header "$MACAROON_HEADER" https://localhost:8080/v1/invoices?num_max_invoices=1000000 > $dir/lnd/invoices.json
+
+#curl -d '{"num_max_events": 1000000, "start_time": 0}' -X POST --cacert /home/boltz/mainnet/lnd/tls.cert --header "$MACAROON_HEADER" https://localhost:8080/v1/switch > $dir/lnd/forwardings2.json
+$MAINNET_LNCLI fwdinghistory --start_time=0 --max_events=1000000 > $dir/lnd/forwardings.json
+#curl -X GET --cacert /home/boltz/mainnet/lnd/tls.cert --header "$MACAROON_HEADER" https://localhost:8080/v1/payments?num_max_payments=1000000 > $dir/lnd/payments2.json
+$MAINNET_LNCLI listpayments --max_payments=1000000 > $dir/lnd/payments.json
+#curl -X GET --cacert /home/boltz/mainnet/lnd/tls.cert --header "$MACAROON_HEADER" https://localhost:8080/v1/invoices?num_max_invoices=1000000 > $dir/lnd/invoices2.json
 $MAINNET_LNCLI listinvoices --max_invoices 1000000 > $dir/lnd/invoices.json
 curl -X GET --cacert /home/boltz/mainnet/lnd/tls.cert --header "$MACAROON_HEADER" https://localhost:8080/v2/wallet/sweeps > $dir/lnd/sweeps.json
-curl -X GET --cacert /home/boltz/mainnet/lnd/tls.cert --header "$MACAROON_HEADER" https://localhost:8080/v1/transactions > $dir/lnd/transactions.json
-curl -X GET --cacert /home/boltz/mainnet/lnd/tls.cert --header "$MACAROON_HEADER" https://localhost:8080/v1/channels > $dir/lnd/listchannels.json
-curl -X GET --cacert /home/boltz/mainnet/lnd/tls.cert --header "$MACAROON_HEADER" https://localhost:8080/v1/channels/closed > $dir/lnd/closedchannels.json
+#curl -X GET --cacert /home/boltz/mainnet/lnd/tls.cert --header "$MACAROON_HEADER" https://localhost:8080/v1/transactions > $dir/lnd/transactions2.json
+$MAINNET_LNCLI listchaintxns > $dir/lnd/transactions.json
+#curl -X GET --cacert /home/boltz/mainnet/lnd/tls.cert --header "$MACAROON_HEADER" https://localhost:8080/v1/channels > $dir/lnd/listchannels2.json
+$MAINNET_LNCLI listchannels > $dir/lnd/listchannels.json
+#curl -X GET --cacert /home/boltz/mainnet/lnd/tls.cert --header "$MACAROON_HEADER" https://localhost:8080/v1/channels/closed > $dir/lnd/closedchannels2.json
+$MAINNET_LNCLI closedchannels > $dir/lnd/closedchannels.json
+
+~/scripts/txid_to_nsid > $dir/lnd/txid_to_nsid.json
+~/scripts/nsid_to_invoice > $dir/lnd/nsid_to_invoice.json
 
 
 cd $dir

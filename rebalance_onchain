@@ -1,10 +1,11 @@
 #!/bin/bash
+exit
 cd $(dirname $0)
 eclair_onchain=$($MAINNET_ECLAIR onchainbalance | jq  '.confirmed | tonumber | . / 100000 | floor ')
 lnd_onchain=$($MAINNET_LNCLI walletbalance | jq '.total_balance   | tonumber | . / 100000 | floor ')
 
-if (( "$lnd_onchain < 200" )); then
-    amount=50
+if (( "$lnd_onchain < 900" )); then
+    amount=100
     if (( "$eclair_onchain > $amount" )); then
 	echo "rebalance_onchain: $amount mBTC"
 	amount_sat=$amount"00000"
